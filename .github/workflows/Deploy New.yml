@@ -1,0 +1,22 @@
+name: Deploy project
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  deploy-to-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout source code'
+        uses: [actions/checkout@v4](https://github.com)
+
+      - name: 'Install Salesforce CLI'
+        run: npm install @salesforce/cli --global
+
+      - name: 'Authenticate to Salesforce Org'
+        run: echo ${{ secrets.SFDX_AUTH_URL }} | sf org login sfdx-url --set-default-dev-hub --alias MyProductionOrg
+
+      - name: 'Deploy metadata to Production'
+        run: sf project deploy start -d force-app/main/default -l RunLocalTests -w 30
