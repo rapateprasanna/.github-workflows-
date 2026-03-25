@@ -1,0 +1,30 @@
+name: Deploy to Staging
+'on':
+  push:
+    branches:
+      - main
+  workflow_dispatch: null
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+      - name: Install dependencies and build
+        run: |
+          npm install
+          npm run build
+      - name: Upload production artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: '${{ steps.deploy-step.outputs.environment_url }}'
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy-step
+        uses: actions/deploy-pages@v4
